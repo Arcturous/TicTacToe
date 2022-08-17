@@ -561,7 +561,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _TimerText: {fileID: 314376166}
-  _PlayerTurnTime: 5
+  _settings: {fileID: 11400000, guid: 571928c5994733f488a6b7c6450fd7cb, type: 2}
 --- !u!1 &320659219
 GameObject:
   m_ObjectHideFlags: 0
@@ -613,7 +613,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _TimerText: {fileID: 320659222}
-  _PlayerTurnTime: 5
+  _settings: {fileID: 0}
 --- !u!114 &320659222
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1397,6 +1397,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 635156375}
+  - component: {fileID: 635156376}
   m_Layer: 5
   m_Name: SideMenu
   m_TagString: Untagged
@@ -1427,6 +1428,23 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &635156376
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 635156374}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7fe7d000a4786994f8424957178eab80, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _undoBtn: {fileID: 1822494569}
+  _mainMenuBtn: {fileID: 654927237}
+  _restartBtn: {fileID: 1025579734}
+  _hintBtn: {fileID: 1209127710}
+  _settings: {fileID: 11400000, guid: 571928c5994733f488a6b7c6450fd7cb, type: 2}
 --- !u!1 &654927235
 GameObject:
   m_ObjectHideFlags: 0
@@ -2531,6 +2549,7 @@ MonoBehaviour:
   _screen: {fileID: 592096443}
   _hint: {fileID: 1289202989}
   _settings: {fileID: 11400000, guid: 571928c5994733f488a6b7c6450fd7cb, type: 2}
+  _sideMenu: {fileID: 635156376}
 --- !u!4 &1289202988
 Transform:
   m_ObjectHideFlags: 0

@@ -10,28 +10,34 @@ public class DifficultyButtons : MonoBehaviour
 
     void Start()
     {
+        Color disabledColor = new Color(196, 194, 194);
+
+        Image easyImage = _easyButton.GetComponent<Image>();
+        Image mediumImage = _mediumButton.GetComponent<Image>();
+        Image hardImage = _hardButton.GetComponent<Image>();
+
         _easyButton.onClick.AddListener(() =>
         {
-            _easyButton.GetComponent<Image>().color = Color.green;
+            easyImage.color = Color.green;
 
-            _mediumButton.GetComponent<Image>().color = new Color(196, 194, 194);
-            _hardButton.GetComponent<Image>().color = new Color(196, 194, 194);
+            mediumImage.color = disabledColor;
+            hardImage.color = disabledColor;
         });
 
         _mediumButton.onClick.AddListener(() =>
         {
-            _mediumButton.GetComponent<Image>().color = Color.yellow;
+            mediumImage.color = Color.yellow;
 
-            _easyButton.GetComponent<Image>().color = new Color(196, 194, 194);
-            _hardButton.GetComponent<Image>().color = new Color(196, 194, 194);
+            easyImage.color = disabledColor;
+            hardImage.color = disabledColor;
         });
 
         _hardButton.onClick.AddListener(() =>
         {
-            _hardButton.GetComponent<Image>().color = Color.red;
+            hardImage.color = Color.red;
 
-            _mediumButton.GetComponent<Image>().color = new Color(196, 194, 194);
-            _easyButton.GetComponent<Image>().color = new Color(196, 194, 194);
+            mediumImage.color = disabledColor;
+            easyImage.color = disabledColor;
         });
     }
 }

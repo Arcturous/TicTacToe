@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private MessageScreen _screen;
     [SerializeField] private Hint _hint;
     [SerializeField] private GameSettings _settings;
+    [SerializeField] private SideMenu _sideMenu;
 
     private int _gridDimension = 3;
     private Stack<int> m_undoStack = new Stack<int>();
@@ -25,6 +26,7 @@ public class GameManager : MonoBehaviour
     private Player m_currentPlayer;
     private MoveLogic m_moveLogic = new MoveLogic();
     private List<Player> m_players = new List<Player>();
+    private Coroutine m_playPCTurnRoutine;
     private int turn
     {
         get { return m_turn; }
@@ -205,6 +207,11 @@ public class GameManager : MonoBehaviour
 
     public void Reset()
     {
+        if (m_playPCTurnRoutine != null)
+        {
+            StopCoroutine(m_playPCTurnRoutine);
+        }
+
         AssignPlayerSymbols();
 
         turn = 0;
@@ -219,8 +226,10 @@ public class GameManager : MonoBehaviour
             _buttons[i].Reset();
         }
 
+        UnlockAllButtons();
+
         if (areAllPlayersPC)
-            LockAllButtons();
+            LockGridButtons();
 
         _timer.Reset();
         _timer.TurnOn();
@@ -241,11 +250,15 @@ public class GameManager : MonoBehaviour
         if (computerPlayerCount == 0) return;   // will disable "undo" button in UI, but want to make sure players can't use it so disable here as well
 
         // computerPlayerCount+1 will make sure it does at least one undo (if we want to add this feature to PvP in the future
-        for (int i = 0; i < computerPlayerCount + 1; i++)
+        int undoAmount = areAllPlayersPC ? computerPlayerCount : computerPlayerCount + 1;
+
+        for (int i = 0; i < undoAmount; i++)
         {
+            if (m_undoStack.Count == 0) return;
+
             // if PC had the first move by being the X, don't undo his move
             Player pcPlayer = m_players.Find((p) => p.UserName.Contains("Computer"));    // can improve this by saving the pc player index and then just getting him instead of using Find each time..
-            if (m_undoStack.Count == 1 && pcPlayer != null && pcPlayer.PlayerSymbol == ePlayerSymbol.X) return;
+            if (!areAllPlayersPC && m_undoStack.Count == 1 && pcPlayer != null && pcPlayer.PlayerSymbol == ePlayerSymbol.X) return;
 
             int gridIndex = m_undoStack.Pop();
 
@@ -269,7 +282,11 @@ public class GameManager : MonoBehaviour
         // TODO lock all buttons
         LockAllButtons();
 
-        StartCoroutine(WaitAndPerformPCTurn());
+        if (m_playPCTurnRoutine != null)
+        {
+            StopCoroutine(m_playPCTurnRoutine);
+        }
+        m_playPCTurnRoutine = StartCoroutine(WaitAndPerformPCTurn());
     }
 
     private IEnumerator WaitAndPerformPCTurn()
@@ -293,6 +310,13 @@ public class GameManager : MonoBehaviour
 
     private void LockAllButtons()
     {
+        _sideMenu?.DisableButtons();
+
+        LockGridButtons();
+    }
+
+    private void LockGridButtons()
+    {
         for (int i = 0; i < _buttons.Length; i++)
         {
             _buttons[i].LockButton();
@@ -301,8 +325,9 @@ public class GameManager : MonoBehaviour
 
     private void UnlockAllButtons()
     {
-        if (areAllPlayersPC) return;
+        _sideMenu?.EnableButtons();
 
+        if (areAllPlayersPC) return;
         for (int i = 0; i < _buttons.Length; i++)
         {
             _buttons[i].UnlockButton();

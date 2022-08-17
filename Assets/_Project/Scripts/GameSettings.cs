@@ -7,4 +7,5 @@ public class GameSettings : ScriptableObject
     public eGameMode mode;
     public eDifficulty difficulty;
     public int GridDimension = 3;
+    public int TurnTime = 5;
 }

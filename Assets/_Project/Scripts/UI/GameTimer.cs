@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class GameTimer : MonoBehaviour
 {
     [SerializeField] private Text _TimerText;
-    [SerializeField] private int _PlayerTurnTime = 5;
+    [SerializeField] private GameSettings _settings;
 
     public readonly GameEvent<int> eOnTimerEnd = new GameEvent<int>();
 
@@ -15,6 +15,7 @@ public class GameTimer : MonoBehaviour
     public int TurnTimeLeft
     {
         get { return m_turnTimeLeft; }
+        private set { m_turnTimeLeft = value; }
     }
 
     public void TurnOn()
@@ -27,7 +28,7 @@ public class GameTimer : MonoBehaviour
     public void Reset()
     {
         TurnOff();
-        m_turnTimeLeft = _PlayerTurnTime;
+        TurnTimeLeft = _settings.TurnTime;
         UpdateText();
     }
 
@@ -39,10 +40,10 @@ public class GameTimer : MonoBehaviour
 
     private IEnumerator CountTime()
     {
-        while (m_turnTimeLeft > 0)
+        while (TurnTimeLeft > 0)
         {
             yield return new WaitForSeconds(1);
-            m_turnTimeLeft--;
+            TurnTimeLeft--;
             UpdateText();
         }
 
@@ -53,8 +54,8 @@ public class GameTimer : MonoBehaviour
     private void UpdateText()
     {
         // TODO get text from xml/json for translation by langCode
-        _TimerText.text = "Time Left: " + m_turnTimeLeft;
-        if (m_turnTimeLeft <= 0)
+        _TimerText.text = "Time Left: " + TurnTimeLeft;
+        if (TurnTimeLeft <= 0)
         {
             _TimerText.text = "Time's Up!";
         }
