@@ -280,7 +280,7 @@ public class GameManager : MonoBehaviour
     private void ActivatePcTurn()
     {
         // TODO lock all buttons
-        LockAllButtons();
+        LockGridButtons();
 
         if (m_playPCTurnRoutine != null)
         {
