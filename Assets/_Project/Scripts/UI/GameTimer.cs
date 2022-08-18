@@ -28,7 +28,7 @@ public class GameTimer : MonoBehaviour
     public void Reset()
     {
         TurnOff();
-        TurnTimeLeft = _settings.TurnTime;
+        TurnTimeLeft = _settings.turnTime;
         UpdateText();
     }
 

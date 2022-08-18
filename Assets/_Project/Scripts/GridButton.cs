@@ -25,7 +25,7 @@ public class GridButton : MonoBehaviour
             m_buttonImage.color = new Color(m_buttonImage.color.r, m_buttonImage.color.g, m_buttonImage.color.b, 0);
     }
 
-    public void SetImage(Sprite newImage)
+    public void SetTexture(Texture2D newTexture)
     {
         if (m_button)
             m_button.interactable = false;
@@ -35,7 +35,7 @@ public class GridButton : MonoBehaviour
         if (m_buttonImage)
         {
             m_buttonImage.color = new Color(m_buttonImage.color.r, m_buttonImage.color.g, m_buttonImage.color.b, 1);
-            m_buttonImage.sprite = newImage;
+            m_buttonImage.sprite = Sprite.Create(newTexture, new Rect(0, 0, newTexture.width, newTexture.height), new Vector2(0, 0));
         }
     }
 

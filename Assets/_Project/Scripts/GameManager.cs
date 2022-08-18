@@ -10,13 +10,12 @@ public class GameManager : MonoBehaviour
     // TODO init buttons dynamically in code
     [SerializeField] private GridButton[] _buttons = new GridButton[9];
     [SerializeField] private Text _playerText;
-    [SerializeField] private Sprite _spriteX;
-    [SerializeField] private Sprite _spriteO;
     [SerializeField] private GameTimer _timer;
     [SerializeField] private MessageScreen _screen;
     [SerializeField] private Hint _hint;
     [SerializeField] private GameSettings _settings;
     [SerializeField] private SideMenu _sideMenu;
+    [SerializeField] private Image _backgroundImage;
 
     private int _gridDimension = 3;
     private Stack<int> m_undoStack = new Stack<int>();
@@ -51,6 +50,8 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        _backgroundImage.sprite = Sprite.Create(_settings.textureBG, new Rect(0, 0, _settings.textureBG.width, _settings.textureBG.height), new Vector2(0, 0));
+
         m_grid = new TicTacToeGrid(_gridDimension);
         // setup the onclick action for all buttons in the grid
         for (int i = 0; i < _buttons.Length; i++)
@@ -84,7 +85,7 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        _gridDimension = _settings.GridDimension;
+        _gridDimension = _settings.gridDimension;
         if (_gridDimension < 3)
         {
             LockAllButtons();
@@ -173,7 +174,7 @@ public class GameManager : MonoBehaviour
 
         m_grid.MarkGrid(buttonIndex, CurrentPlayer.PlayerSymbol);
 
-        _buttons[buttonIndex]?.SetImage(CurrentPlayer.PlayerSymbol == ePlayerSymbol.X ? _spriteX : _spriteO);
+        _buttons[buttonIndex]?.SetTexture(CurrentPlayer.PlayerSymbol == ePlayerSymbol.X ? _settings.textureX : _settings.textureO);
     }
 
     private bool CheckWin()

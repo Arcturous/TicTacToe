@@ -42,7 +42,8 @@ public class ReskinWindow : EditorWindow
             return false;
         }
 
-        if (Directory.Exists(Application.streamingAssetsPath + "/" + m_bundleName)) // should add a confirm option in the future, for now just allowing overwrite
+        string bundlePath = Path.Combine(Application.streamingAssetsPath + "/AssetBundles", "AssetBundle_" + m_bundleName);
+        if (Directory.Exists(bundlePath)) // should add a confirm option in the future, for now just allowing overwrite
         {
             this.ShowNotification(new GUIContent("A bundle with this name already exists, overwriting"));
             return true;
@@ -64,7 +65,7 @@ public class ReskinWindow : EditorWindow
 
     private void CreateAssetBundle()
     {
-        string assetPath = Application.streamingAssetsPath + "/AssetBundle_" + m_bundleName;
+        string assetPath = Path.Combine(Application.streamingAssetsPath, "AssetBundles");
 
         if (!Directory.Exists(assetPath))
         {
@@ -80,14 +81,8 @@ public class ReskinWindow : EditorWindow
             AssetDatabase.GetAssetPath(m_backgroundImage)
         };
 
-        // var assetImporterX = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(m_xImage));
-        // var assetImporterO = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(m_oImage));
-        // var assetImporterBG = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(m_backgroundImage));
+        AssetBundleManifest manifest = BuildPipeline.BuildAssetBundles(Application.streamingAssetsPath + "/AssetBundles", new AssetBundleBuild[] { build }, BuildAssetBundleOptions.None, EditorUserBuildSettings.activeBuildTarget);
 
-        // assetImporterX.assetBundleName = m_bundleName;
-        // assetImporterO.assetBundleName = m_bundleName;
-        // assetImporterBG.assetBundleName = m_bundleName;
-
-        AssetBundleManifest manifest = BuildPipeline.BuildAssetBundles(assetPath, new AssetBundleBuild[] { build }, BuildAssetBundleOptions.None, EditorUserBuildSettings.activeBuildTarget);
+        AssetDatabase.Refresh();
     }
 }

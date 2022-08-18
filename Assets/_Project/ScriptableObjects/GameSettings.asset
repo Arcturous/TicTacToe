@@ -12,5 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c5b37a324c53e14b8554f9172e08eb5, type: 3}
   m_Name: GameSettings
   m_EditorClassIdentifier: 
-  mode: 0
+  mode: 1
   difficulty: 0
+  gridDimension: 3
+  turnTime: 5
+  textureX: {fileID: 0}
+  textureO: {fileID: 0}
+  textureBG: {fileID: 0}

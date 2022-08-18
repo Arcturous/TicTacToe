@@ -16,6 +16,16 @@ public class Logger
 
     public void Log(string message, string sourceFunc = null)
     {
+        Debug.Log(PrepareMessage(message, sourceFunc));
+    }
+
+    public void LogError(string message, string sourceFunc = null)
+    {
+        Debug.LogError(PrepareMessage(message, sourceFunc));
+    }
+
+    private string PrepareMessage(string message, string sourceFunc = null)
+    {
         string output = _sourceClass;
 
         if (!string.IsNullOrEmpty(sourceFunc))
@@ -25,6 +35,6 @@ public class Logger
 
         output += " " + message;
 
-        Debug.Log(output);
+        return output;
     }
 }

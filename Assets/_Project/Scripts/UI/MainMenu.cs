@@ -1,12 +1,22 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using System.Collections.Generic;
+using System.Collections;
+using System.IO;
 
 public class MainMenu : MonoBehaviour
 {
-    [SerializeField] GameSettings _settings;
-
-    [SerializeField] GameObject _modeButtons;
-    [SerializeField] GameObject _difficultyButtons;
+    [SerializeField] private GameSettings _settings;
+    [SerializeField] private GameObject _modeButtons;
+    [SerializeField] private GameObject _difficultyButtons;
+    [SerializeField] private Image _backgroundImage;
+    [SerializeField] private Texture2D _defaultX;
+    [SerializeField] private Texture2D _defaultO;
+    [SerializeField] private Texture2D _defaultBG;
+    [SerializeField] private List<GameObject> _menuItems;
+    [SerializeField] private Image _loadingSpinner;
+    [SerializeField] private InputField _bundleNameField;
 
     private Vector2 m_OriginalBtnPosition;
     private Logger m_logger = new Logger("MainMenu");
@@ -15,10 +25,26 @@ public class MainMenu : MonoBehaviour
     {
         m_OriginalBtnPosition = _modeButtons.transform.position;
 
-        // reset settings to default
-        _settings.mode = eGameMode.PvPC;
-        _settings.difficulty = eDifficulty.easy;
-        _settings.GridDimension = 3;
+        // on first run - use defaults
+        if (!_settings.textureX)
+        {
+            _settings.mode = eGameMode.PvPC;
+            _settings.difficulty = eDifficulty.easy;
+            _settings.gridDimension = 3;
+            _settings.textureX = _defaultX;
+            _settings.textureO = _defaultO;
+            _settings.textureBG = _defaultBG;
+        }
+
+        _backgroundImage.sprite = Sprite.Create(_settings.textureBG, new Rect(0, 0, _settings.textureBG.width, _settings.textureBG.height), new Vector2(0, 0));
+    }
+
+    void Update()
+    {
+        if (_loadingSpinner.enabled)
+        {
+            _loadingSpinner.transform.Rotate(0f, 0f, -500f * Time.deltaTime);
+        }
     }
 
     public void SetGameMode(int mode)
@@ -47,7 +73,7 @@ public class MainMenu : MonoBehaviour
 
     public void SetGridDimension(int dimension)
     {
-        _settings.GridDimension = dimension;
+        _settings.gridDimension = dimension;
     }
 
     public void StartGame()
@@ -57,6 +83,90 @@ public class MainMenu : MonoBehaviour
 
     public void Reskin()
     {
+        HideMenuItems();
+        ShowLoading();
 
+        StartCoroutine(RequestAssetBundle(_bundleNameField.text));
+    }
+
+    private IEnumerator RequestAssetBundle(string bundleName)
+    {
+        if (bundleName == null || bundleName == "")
+        {
+            OnAssetBundleLoadError();
+            yield break;
+        }
+
+        string bundlePath = Path.Combine(Application.streamingAssetsPath + "/AssetBundles", bundleName);
+
+        AssetBundleCreateRequest request = AssetBundle.LoadFromFileAsync(bundlePath);
+        yield return request;
+
+        AssetBundle localAssetBundle = request.assetBundle;
+        if (localAssetBundle == null)
+        {
+            OnAssetBundleLoadError();
+            yield break;
+        }
+
+        var assetNames = localAssetBundle.GetAllAssetNames();
+
+        List<Texture2D> textures = new List<Texture2D>();
+
+        foreach (string name in assetNames)
+        {
+            m_logger.Log($"Loading asset {name} from asset bundle");
+            AssetBundleRequest assetRequest = localAssetBundle.LoadAssetAsync<Texture2D>(name);
+            yield return assetRequest;
+
+            if (assetRequest == null)
+            {
+                OnAssetBundleLoadError();
+                yield break;
+            }
+
+            Texture2D texture = assetRequest.asset as Texture2D;
+
+            if (texture != null)
+                textures.Add(texture);
+        }
+
+        localAssetBundle.Unload(false);
+
+        _settings.textureBG = textures[0] ?? _settings.textureBG;
+        _settings.textureO = textures[1] ?? _settings.textureO;
+        _settings.textureX = textures[2] ?? _settings.textureX;
+
+        _backgroundImage.sprite = Sprite.Create(_settings.textureBG, new Rect(0, 0, _settings.textureBG.width, _settings.textureBG.height), new Vector2(0, 0));
+
+        ShowMenuItems();
+        HideLoading();
+    }
+
+    private void OnAssetBundleLoadError()
+    {
+        m_logger.LogError("Failed to load Asset Bundle");
+        ShowMenuItems();
+        HideLoading();
+    }
+
+    private void ShowMenuItems()
+    {
+        _menuItems.ForEach((item) => item.SetActive(true));
+    }
+
+    private void HideMenuItems()
+    {
+        _menuItems.ForEach((item) => item.SetActive(false));
+    }
+
+    private void ShowLoading()
+    {
+        _loadingSpinner.enabled = true;
+    }
+
+    private void HideLoading()
+    {
+        _loadingSpinner.enabled = false;
     }
 }

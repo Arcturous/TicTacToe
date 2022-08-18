@@ -6,6 +6,9 @@ public class GameSettings : ScriptableObject
 {
     public eGameMode mode;
     public eDifficulty difficulty;
-    public int GridDimension = 3;
-    public int TurnTime = 5;
+    public int gridDimension = 3;
+    public int turnTime = 5;
+    public Texture2D textureX;
+    public Texture2D textureO;
+    public Texture2D textureBG;
 }
