@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class TicTacToeLogic
 {
+    private const int WIN_SCORE = 10;
+    private const int LOSE_SCORE = -1000;
+    private const int STEP_SCORE = -50;
+    private const int DRAW_SCORE = 0;
+
     private ePlayerSymbol m_currentPlayerSymbol;
     private ePlayerSymbol m_currentOpponentSymbol;
 
@@ -45,18 +50,18 @@ public class TicTacToeLogic
     {
         if (IsWin(newGrid, gridDimension, m_currentOpponentSymbol)) // other player won
         {
-            return new Move() { score = -1000 };
+            return new Move() { score = LOSE_SCORE };
         }
 
         if (IsWin(newGrid, gridDimension, m_currentPlayerSymbol)) // this player won
         {
-            return new Move() { score = 10 };
+            return new Move() { score = WIN_SCORE };
         }
 
         int[] emptyindices = GetEmptyIndices(newGrid);
         if (emptyindices.Length == 0)
         {
-            return new Move() { score = 0 };
+            return new Move() { score = DRAW_SCORE };
         }
 
         // a list to collect all the possible moves for this grid
@@ -65,7 +70,7 @@ public class TicTacToeLogic
         // loop through available spots
         for (int i = 0; i < emptyindices.Length; i++)
         {
-            //create an object for each and store the index of that spot 
+            //create an object for each spot and store the index of that spot 
             Move move = new Move() { index = emptyindices[i] };
 
             // set the empty spot to the player symbol
@@ -83,7 +88,7 @@ public class TicTacToeLogic
                 checkedMoves.Add((string.Join(", ", newGrid) + $", {(1 - symbol)}"), result);
             }
 
-            move.score = result.score - 50; // substract score for any move that doesn't lead to a win - thus making us search for the shortest route to win
+            move.score = result.score + STEP_SCORE; // substract score for any move that doesn't lead to a win - thus making us search for the shortest route to win
 
             // reset the spot to empty
             newGrid[emptyindices[i]] = -1;
