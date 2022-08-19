@@ -9,6 +9,18 @@ public class Logger
 
     private string _sourceClass;
 
+    private bool isRunningInEditor
+    {
+        get
+        {
+#if UNITY_EDITOR
+            return true;
+#else
+        return false;
+#endif
+        }
+    }
+
     public Logger(string sourceClass)
     {
         _sourceClass = $"[{sourceClass}]";
@@ -16,12 +28,14 @@ public class Logger
 
     public void Log(string message, string sourceFunc = null)
     {
-        Debug.Log(PrepareMessage(message, sourceFunc));
+        if (isRunningInEditor)
+            Debug.Log(PrepareMessage(message, sourceFunc));
     }
 
     public void LogError(string message, string sourceFunc = null)
     {
-        Debug.LogError(PrepareMessage(message, sourceFunc));
+        if (isRunningInEditor)
+            Debug.LogError(PrepareMessage(message, sourceFunc));
     }
 
     private string PrepareMessage(string message, string sourceFunc = null)
