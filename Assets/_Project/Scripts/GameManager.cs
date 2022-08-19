@@ -26,6 +26,7 @@ public class GameManager : MonoBehaviour
     private MoveLogic m_moveLogic = new MoveLogic();
     private List<Player> m_players = new List<Player>();
     private Coroutine m_playPCTurnRoutine;
+    private bool m_areAllPlayersPC = false;
     private int turn
     {
         get { return m_turn; }
@@ -45,7 +46,8 @@ public class GameManager : MonoBehaviour
 
     private bool areAllPlayersPC
     {
-        get { return m_players.TrueForAll((p) => p.UserName.Contains("Computer")); }
+        // get { return m_players.TrueForAll((p) => p.UserName.Contains("Computer")); }
+        get { return m_areAllPlayersPC; }
     }
 
     private void Awake()
@@ -74,8 +76,6 @@ public class GameManager : MonoBehaviour
 
         m_grid = new TicTacToeGrid(_gridDimension);
 
-        m_logger.Log("calling reset from start");
-
         Reset();
     }
 
@@ -98,6 +98,8 @@ public class GameManager : MonoBehaviour
             _screen?.ShowError("Grid dimension too low - Minimum 3");
         }
 
+        m_areAllPlayersPC = false;
+
         switch (_settings.mode)
         {
             case eGameMode.PvP:
@@ -107,6 +109,7 @@ public class GameManager : MonoBehaviour
             case eGameMode.PCvPC:
                 m_players.Add(new ComputerPlayer(1, _settings.difficulty));
                 m_players.Add(new ComputerPlayer(2, _settings.difficulty));
+                m_areAllPlayersPC = true;
                 break;
             default:  // eGameMode.PvPC
                 m_players.Add(new Player("Player"));
@@ -207,6 +210,10 @@ public class GameManager : MonoBehaviour
     public Stack<int> UndoStack
     {
         get { return m_undoStack; }
+    }
+    public List<Player> Players
+    {
+        get { return m_players; }
     }
 
     public int TurnToStartCheckingWin
