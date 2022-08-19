@@ -7,8 +7,7 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    // TODO init buttons dynamically in code
-    [SerializeField] private GridButton[] _buttons = new GridButton[9];
+    [SerializeField] private GridButton[] _buttons = new GridButton[9];     // TODO init buttons dynamically in "TicTacToeBoard" class by _gridDimension, that way can support different sized grid dimensions(4x4,5x5 etc')
     [SerializeField] private Text _playerText;
     [SerializeField] private GameTimer _timer;
     [SerializeField] private MessageScreen _screen;
@@ -23,10 +22,10 @@ public class GameManager : MonoBehaviour
     private int m_turn = 0;
     private TicTacToeGrid m_grid;
     private Player m_currentPlayer;
-    private MoveLogic m_moveLogic = new MoveLogic();
     private List<Player> m_players = new List<Player>();
     private Coroutine m_playPCTurnRoutine;
     private bool m_areAllPlayersPC = false;
+    private TicTacToeLogic m_logic = new TicTacToeLogic();
     private int turn
     {
         get { return m_turn; }
@@ -130,7 +129,7 @@ public class GameManager : MonoBehaviour
     {
         if (_buttons == null || _buttons.Length == 0) return;
 
-        int emptyIndex = m_moveLogic.CalculateBestMove(m_grid.Grid, CurrentPlayer.PlayerSymbol);
+        int emptyIndex = m_logic.CalculateBestMove(m_grid.Grid, CurrentPlayer.PlayerSymbol);
 
         if (_buttons[emptyIndex] == null) return;
 
@@ -282,7 +281,7 @@ public class GameManager : MonoBehaviour
         if (computerPlayerCount == 0) return;   // will disable "undo" button in UI, but want to make sure players can't use it so disable here as well
 
         // computerPlayerCount+1 will make sure it does at least one undo (if we want to add this feature to PvP in the future
-        int undoAmount = areAllPlayersPC ? computerPlayerCount : computerPlayerCount + 1;
+        int undoAmount = areAllPlayersPC ? 1 : computerPlayerCount + 1;
 
         for (int i = 0; i < undoAmount; i++)
         {
@@ -357,7 +356,7 @@ public class GameManager : MonoBehaviour
 
     private void UnlockAllButtons()
     {
-        _sideMenu?.EnableButtons();
+        // _sideMenu?.EnableButtons();
 
         if (areAllPlayersPC) return;
         for (int i = 0; i < _buttons?.Length; i++)

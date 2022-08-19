@@ -28,13 +28,15 @@ public class MainMenu : MonoBehaviour
         // on first run - use defaults
         if (!_settings.textureX)
         {
-            _settings.mode = eGameMode.PvPC;
-            _settings.difficulty = eDifficulty.easy;
             _settings.gridDimension = 3;
             _settings.textureX = _defaultX;
             _settings.textureO = _defaultO;
             _settings.textureBG = _defaultBG;
         }
+
+        // always reset mode
+        _settings.mode = eGameMode.PvPC;
+        _settings.difficulty = eDifficulty.easy;
 
         _backgroundImage.sprite = Sprite.Create(_settings.textureBG, new Rect(0, 0, _settings.textureBG.width, _settings.textureBG.height), new Vector2(0, 0));
     }

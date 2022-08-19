@@ -29,6 +29,11 @@ public class UndoTest
         GameObject obj = new GameObject();
         GameManager manager = obj.AddComponent<GameManager>();
         TicTacToeGrid grid = manager.Grid;
+        grid.Reset(); // if pc player has first turn, he will fill a random spot which would ruin these tests
+
+        manager.Players.Clear();    // create 2 non-pc players
+        manager.Players.Add(new Player("Player1") { PlayerSymbol = ePlayerSymbol.X });
+        manager.Players.Add(new ComputerPlayer(0) { PlayerSymbol = ePlayerSymbol.O });
 
         int[] clickedIndices = new int[] { 1, 4, 7, 8 };
         int[] clickedIndicesAfterUndo = new int[] { 1, 4 };
@@ -72,6 +77,11 @@ public class UndoTest
         GameObject obj = new GameObject();
         GameManager manager = obj.AddComponent<GameManager>();
         TicTacToeGrid grid = manager.Grid;
+        grid.Reset(); // if pc player has first turn, he will fill a random spot which would ruin these tests
+
+        manager.Players.Clear();    // create 2 non-pc players
+        manager.Players.Add(new Player("Player1") { PlayerSymbol = ePlayerSymbol.X });
+        manager.Players.Add(new ComputerPlayer(0) { PlayerSymbol = ePlayerSymbol.O });
 
         int[] clickedIndices = new int[] { 1, 4, 7 };
         int[] clickedIndicesAfterUndo = new int[] { 1 };
@@ -114,6 +124,12 @@ public class UndoTest
         GameObject obj = new GameObject();
         GameManager manager = obj.AddComponent<GameManager>();
         TicTacToeGrid grid = manager.Grid;
+        grid.Reset(); // if pc player has first turn, he will fill a random spot which would ruin these tests
+
+        manager.Players.Clear();    // create 2 non-pc players
+        manager.Players.Add(new Player("Player1") { PlayerSymbol = ePlayerSymbol.X });
+        manager.Players.Add(new ComputerPlayer(0) { PlayerSymbol = ePlayerSymbol.O });
+
 
         int[] clickedIndices = new int[] { 1, 6 };
 
@@ -151,6 +167,11 @@ public class UndoTest
         GameObject obj = new GameObject();
         GameManager manager = obj.AddComponent<GameManager>();
         TicTacToeGrid grid = manager.Grid;
+        grid.Reset(); // if pc player has first turn, he will fill a random spot which would ruin these tests
+
+        manager.Players.Clear();    // create 2 non-pc players
+        manager.Players.Add(new Player("Player1") { PlayerSymbol = ePlayerSymbol.X });
+        manager.Players.Add(new ComputerPlayer(0) { PlayerSymbol = ePlayerSymbol.O });
 
         int[] clickedIndices = new int[] { 1 };
 
@@ -187,6 +208,11 @@ public class UndoTest
         GameObject obj = new GameObject();
         GameManager manager = obj.AddComponent<GameManager>();
         TicTacToeGrid grid = manager.Grid;
+        grid.Reset(); // if pc player has first turn, he will fill a random spot which would ruin these tests
+
+        manager.Players.Clear();    // create 2 non-pc players
+        manager.Players.Add(new Player("Player1") { PlayerSymbol = ePlayerSymbol.X });
+        manager.Players.Add(new ComputerPlayer(0) { PlayerSymbol = ePlayerSymbol.O });
 
         int[] testGrid = {
             -1,-1,-1,
@@ -212,6 +238,7 @@ public class UndoTest
         GameObject obj = new GameObject();
         GameManager manager = obj.AddComponent<GameManager>();
         TicTacToeGrid grid = manager.Grid;
+        grid.Reset(); // if pc player has first turn, he will fill a random spot which would ruin these tests
 
         manager.Players.Clear();    // create 2 non-pc players
         manager.Players.Add(new Player("Player1") { PlayerSymbol = ePlayerSymbol.X });

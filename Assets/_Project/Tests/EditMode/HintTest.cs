@@ -9,7 +9,7 @@ public class HintTest
     [Test]
     public void TestBestHintPlacementIndex()
     {
-        MoveLogic logic = new MoveLogic();
+        TicTacToeLogic logic = new TicTacToeLogic();
 
         int[] grid =
         {
@@ -27,7 +27,7 @@ public class HintTest
     [Test]
     public void TestBestHintPlacementIndex2()
     {
-        MoveLogic logic = new MoveLogic();
+        TicTacToeLogic logic = new TicTacToeLogic();
 
         int[] grid =
         {
@@ -45,7 +45,7 @@ public class HintTest
     [Test]
     public void TestBestHintPlacementIndex3()
     {
-        MoveLogic logic = new MoveLogic();
+        TicTacToeLogic logic = new TicTacToeLogic();
 
         int[] grid =
         {
@@ -63,7 +63,7 @@ public class HintTest
     [Test]
     public void TestBestHintPlacementIndex4()
     {
-        MoveLogic logic = new MoveLogic();
+        TicTacToeLogic logic = new TicTacToeLogic();
 
         int[] grid =
         {
@@ -81,7 +81,7 @@ public class HintTest
     [Test]
     public void TestBestHintPlacementIndex5()
     {
-        MoveLogic logic = new MoveLogic();
+        TicTacToeLogic logic = new TicTacToeLogic();
 
         int[] grid =
         {
@@ -99,7 +99,7 @@ public class HintTest
     [Test]
     public void TestBestHintPlacementOnEmptyGrid()
     {
-        MoveLogic logic = new MoveLogic();
+        TicTacToeLogic logic = new TicTacToeLogic();
 
         int[] grid =
         {
