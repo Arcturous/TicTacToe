@@ -180,22 +180,8 @@ public class GameManager : MonoBehaviour
     private bool CheckWin()
     {
         // cannot win before having a player with at least {_gridDimension} marks on the grid
-
-        // 2+1 = 3  --->  X O X (turn == 2)
-        // 3+1 = 4  --->  X O X O X (turn == 4)
-        // 4+1 = 5  --->  X O X O X O X (turn == 6)
-        // 5+1 = 6  --->  X O X O X O X O X (turn == 8)
-        // 6+1 = 7  --->  X O X O X O X O X O X (turn == 10)
-        // 20+1 = 21  --->  X O X O X O X O X O X O X O X O X O X O X O X O X O X O X O X O X O X O X O X (turn == 38)
-
-        // _gridDimension == 2 -> if(turn < 2)
-        // _gridDimension == 3 -> if(turn < 4)
-        // _gridDimension == 4 -> if(turn < 6)
-        // _gridDimension == 5 -> if(turn < 8)
-        // _gridDimension == 6 -> if(turn < 10)
-        // _gridDimension == 20 -> if(turn < 38)
-
         if (turn < TurnToStartCheckingWin) return false;
+
         m_logger.Log($"Reached Enough turns to start checking win. GridDimension - {_gridDimension}, Turn - {turn}", "CheckWin");
 
         return m_grid.IsWin(CurrentPlayer.PlayerSymbol);
@@ -203,6 +189,19 @@ public class GameManager : MonoBehaviour
 
     public int TurnToStartCheckingWin
     {
+        // 2+1 = 3  --->  X O X (turn == 2)
+        // 3+1 = 4  --->  X O X O X (turn == 4)
+        // 4+1 = 5  --->  X O X O X O X (turn == 6)
+        // 5+1 = 6  --->  X O X O X O X O X (turn == 8)
+        // 6+1 = 7  --->  X O X O X O X O X O X (turn == 10)
+        // 20+1 = 21  --->  X O X O X O X O X O X O X O X O X O X O X O X O X O X O X O X O X O X O X O X (turn == 38)
+
+        // _gridDimension == 2 -> turn < 2
+        // _gridDimension == 3 -> turn < 4
+        // _gridDimension == 4 -> turn < 6
+        // _gridDimension == 5 -> turn < 8
+        // _gridDimension == 6 -> turn < 10
+        // _gridDimension == 20 -> turn < 38
         get { return _gridDimension + 1 + (_gridDimension - 3); }
     }
 

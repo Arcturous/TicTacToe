@@ -41,10 +41,14 @@ public class MainMenu : MonoBehaviour
 
     void Update()
     {
-        if (_loadingSpinner.enabled)
-        {
-            _loadingSpinner.transform.Rotate(0f, 0f, -500f * Time.deltaTime);
-        }
+        RotateSpinner();
+    }
+
+    private void RotateSpinner()
+    {
+        if (!_loadingSpinner.enabled) return;
+
+        _loadingSpinner.transform.Rotate(0f, 0f, -500f * Time.deltaTime);
     }
 
     public void SetGameMode(int mode)
@@ -83,8 +87,9 @@ public class MainMenu : MonoBehaviour
 
     public void Reskin()
     {
+        // would only show on high loading times, from my tests its too fast to see anything on local loading, but best to always have a loading message of some sort
+        ShowLoadingSpinner();
         HideMenuItems();
-        ShowLoading();
 
         StartCoroutine(RequestAssetBundle(_bundleNameField.text));
     }
@@ -133,21 +138,29 @@ public class MainMenu : MonoBehaviour
 
         localAssetBundle.Unload(false);
 
+        AssignTexturesToSettings(textures);
+        ShowMenuItems();
+        HideLoadingSpinner();
+    }
+
+    private void AssignTexturesToSettings(List<Texture2D> textures)
+    {
+        // BUG
+        // The AssetBundle sorts them by alphabetical order, problem is I cant know the asset names beforehand.
+        // I could force the asset to have x/o/bg in its name and use "find", but would be pretty bad to make external bundles meet this requirement
+
         _settings.textureBG = textures[0] ?? _settings.textureBG;
         _settings.textureO = textures[1] ?? _settings.textureO;
         _settings.textureX = textures[2] ?? _settings.textureX;
 
         _backgroundImage.sprite = Sprite.Create(_settings.textureBG, new Rect(0, 0, _settings.textureBG.width, _settings.textureBG.height), new Vector2(0, 0));
-
-        ShowMenuItems();
-        HideLoading();
     }
 
     private void OnAssetBundleLoadError()
     {
         m_logger.LogError("Failed to load Asset Bundle");
         ShowMenuItems();
-        HideLoading();
+        HideLoadingSpinner();
     }
 
     private void ShowMenuItems()
@@ -160,12 +173,12 @@ public class MainMenu : MonoBehaviour
         _menuItems.ForEach((item) => item.SetActive(false));
     }
 
-    private void ShowLoading()
+    private void ShowLoadingSpinner()
     {
         _loadingSpinner.enabled = true;
     }
 
-    private void HideLoading()
+    private void HideLoadingSpinner()
     {
         _loadingSpinner.enabled = false;
     }
