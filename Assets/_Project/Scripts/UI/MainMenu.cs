@@ -18,12 +18,12 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private Image _loadingSpinner;
     [SerializeField] private InputField _bundleNameField;
 
-    private Vector2 m_OriginalBtnPosition;
+    private Vector2 m_originalBtnPosition;
     private Logger m_logger = new Logger("MainMenu");
 
     void Start()
     {
-        m_OriginalBtnPosition = _modeButtons.transform.position;
+        m_originalBtnPosition = _modeButtons.transform.position;
 
         // on first run - use defaults
         if (!_settings.textureX)
@@ -61,12 +61,12 @@ public class MainMenu : MonoBehaviour
 
         if (_settings.mode == eGameMode.PvP)
         {
-            _modeButtons.transform.position = new Vector2(m_OriginalBtnPosition.x, m_OriginalBtnPosition.y - 0.3f);
+            _modeButtons.transform.position = new Vector2(m_originalBtnPosition.x, m_originalBtnPosition.y - 0.3f);
             _difficultyButtons.SetActive(false);
         }
         else
         {
-            _modeButtons.transform.position = m_OriginalBtnPosition;
+            _modeButtons.transform.position = m_originalBtnPosition;
             _difficultyButtons.SetActive(true);
         }
     }
