@@ -26,6 +26,8 @@ public class GameManager : MonoBehaviour
     private Coroutine m_playPCTurnRoutine;
     private bool m_areAllPlayersPC = false;
     private TicTacToeLogic m_logic = new TicTacToeLogic();
+
+    #region getters/setters
     private int turn
     {
         get { return m_turn; }
@@ -36,6 +38,11 @@ public class GameManager : MonoBehaviour
             if (_playerText)
                 _playerText.text = m_currentPlayer.UserName;
         }
+    }
+
+    private Player CurrentPlayer
+    {
+        get { return m_currentPlayer; }
     }
 
     private bool isCurrentPlayerPC
@@ -49,6 +56,40 @@ public class GameManager : MonoBehaviour
         get { return m_areAllPlayersPC; }
     }
 
+    public TicTacToeGrid Grid
+    {
+        get { return m_grid; }
+    }
+
+    public Stack<int> UndoStack
+    {
+        get { return m_undoStack; }
+    }
+    public List<Player> Players
+    {
+        get { return m_players; }
+    }
+
+    public int TurnToStartCheckingWin
+    {
+        // 2+1 = 3  --->  X O X (turn == 2)
+        // 3+1 = 4  --->  X O X O X (turn == 4)
+        // 4+1 = 5  --->  X O X O X O X (turn == 6)
+        // 5+1 = 6  --->  X O X O X O X O X (turn == 8)
+        // 6+1 = 7  --->  X O X O X O X O X O X (turn == 10)
+        // 20+1 = 21  --->  X O X O X O X O X O X O X O X O X O X O X O X O X O X O X O X O X O X O X O X (turn == 38)
+
+        // _gridDimension == 2 -> turn < 2
+        // _gridDimension == 3 -> turn < 4
+        // _gridDimension == 4 -> turn < 6
+        // _gridDimension == 5 -> turn < 8
+        // _gridDimension == 6 -> turn < 10
+        // _gridDimension == 20 -> turn < 38
+        get { return _gridDimension + 1 + (_gridDimension - 3); }
+    }
+    #endregion
+
+    #region private functions
     private void Awake()
     {
         SetupGameBySettings();
@@ -120,11 +161,100 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private Player CurrentPlayer
+    private void AssignPlayerSymbols()
     {
-        get { return m_currentPlayer; }
+        Array values = Enum.GetValues(typeof(ePlayerSymbol));
+        System.Random random = new System.Random();
+        ePlayerSymbol randomPlayerSymbol = (ePlayerSymbol)values.GetValue(random.Next(values.Length));
+
+        m_players[0].PlayerSymbol = randomPlayerSymbol;
+
+        // TODO make this scalable with more players in future feature? the 1- solution is only fitting for 2 players..
+        m_players[1].PlayerSymbol = 1 - randomPlayerSymbol;
     }
 
+    private void SetToPlayerSymbol(int buttonIndex)
+    {
+        m_logger.Log($"setting {buttonIndex} to symbol {CurrentPlayer.PlayerSymbol}");
+
+        m_grid.MarkGrid(buttonIndex, CurrentPlayer.PlayerSymbol);
+
+        if (_settings)
+            _buttons[buttonIndex]?.SetTexture(CurrentPlayer.PlayerSymbol == ePlayerSymbol.X ? _settings.textureX : _settings.textureO);
+    }
+
+    private bool CheckWin()
+    {
+        // cannot win before having a player with at least {_gridDimension} marks on the grid
+        if (turn < TurnToStartCheckingWin) return false;
+
+        m_logger.Log($"Reached Enough turns to start checking win. GridDimension - {_gridDimension}, Turn - {turn}", "CheckWin");
+
+        return m_grid.IsWin(CurrentPlayer.PlayerSymbol);
+    }
+
+    private void EndGame(eGameMessage message)
+    {
+        LockAllButtons();
+        // TODO lock side buttons
+        _timer?.TurnOff();
+        _screen?.ShowMessage(message, CurrentPlayer);
+    }
+
+    private void ActivatePcTurn()
+    {
+        // TODO lock all buttons
+        LockGridButtons();
+
+        if (m_playPCTurnRoutine != null)
+        {
+            StopCoroutine(m_playPCTurnRoutine);
+        }
+        m_playPCTurnRoutine = StartCoroutine(WaitAndPerformPCTurn());
+    }
+
+    private IEnumerator WaitAndPerformPCTurn()
+    {
+        yield return new WaitForSeconds(1);
+        ComputerPlayer pcPlayer = CurrentPlayer as ComputerPlayer;
+        if (pcPlayer != null)
+        {
+            int emptyIndex = pcPlayer.NextMoveIndex(m_grid);
+            OnClickGridButton(emptyIndex);
+        }
+
+        // TODO release all buttons
+        UnlockAllButtons();
+    }
+
+    private void LockAllButtons()
+    {
+        _sideMenu?.DisableButtons();
+
+        LockGridButtons();
+    }
+
+    private void LockGridButtons()
+    {
+        for (int i = 0; i < _buttons?.Length; i++)
+        {
+            _buttons[i]?.LockButton();
+        }
+    }
+
+    private void UnlockAllButtons()
+    {
+        // _sideMenu?.EnableButtons();
+
+        if (areAllPlayersPC) return;
+        for (int i = 0; i < _buttons?.Length; i++)
+        {
+            _buttons[i]?.UnlockButton();
+        }
+    }
+    #endregion
+
+    #region public functions
     public void OnClickHint()
     {
         if (_buttons == null || _buttons.Length == 0) return;
@@ -172,68 +302,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void AssignPlayerSymbols()
+    public void MainMenu()
     {
-        Array values = Enum.GetValues(typeof(ePlayerSymbol));
-        System.Random random = new System.Random();
-        ePlayerSymbol randomPlayerSymbol = (ePlayerSymbol)values.GetValue(random.Next(values.Length));
-
-        m_players[0].PlayerSymbol = randomPlayerSymbol;
-
-        // TODO make this scalable with more players in future feature? the 1- solution is only fitting for 2 players..
-        m_players[1].PlayerSymbol = 1 - randomPlayerSymbol;
-    }
-
-    private void SetToPlayerSymbol(int buttonIndex)
-    {
-        m_logger.Log($"setting {buttonIndex} to symbol {CurrentPlayer.PlayerSymbol}");
-
-        m_grid.MarkGrid(buttonIndex, CurrentPlayer.PlayerSymbol);
-
-        if (_settings)
-            _buttons[buttonIndex]?.SetTexture(CurrentPlayer.PlayerSymbol == ePlayerSymbol.X ? _settings.textureX : _settings.textureO);
-    }
-
-    private bool CheckWin()
-    {
-        // cannot win before having a player with at least {_gridDimension} marks on the grid
-        if (turn < TurnToStartCheckingWin) return false;
-
-        m_logger.Log($"Reached Enough turns to start checking win. GridDimension - {_gridDimension}, Turn - {turn}", "CheckWin");
-
-        return m_grid.IsWin(CurrentPlayer.PlayerSymbol);
-    }
-
-    public TicTacToeGrid Grid
-    {
-        get { return m_grid; }
-    }
-
-    public Stack<int> UndoStack
-    {
-        get { return m_undoStack; }
-    }
-    public List<Player> Players
-    {
-        get { return m_players; }
-    }
-
-    public int TurnToStartCheckingWin
-    {
-        // 2+1 = 3  --->  X O X (turn == 2)
-        // 3+1 = 4  --->  X O X O X (turn == 4)
-        // 4+1 = 5  --->  X O X O X O X (turn == 6)
-        // 5+1 = 6  --->  X O X O X O X O X (turn == 8)
-        // 6+1 = 7  --->  X O X O X O X O X O X (turn == 10)
-        // 20+1 = 21  --->  X O X O X O X O X O X O X O X O X O X O X O X O X O X O X O X O X O X O X O X (turn == 38)
-
-        // _gridDimension == 2 -> turn < 2
-        // _gridDimension == 3 -> turn < 4
-        // _gridDimension == 4 -> turn < 6
-        // _gridDimension == 5 -> turn < 8
-        // _gridDimension == 6 -> turn < 10
-        // _gridDimension == 20 -> turn < 38
-        get { return _gridDimension + 1 + (_gridDimension - 3); }
+        SceneManager.LoadScene("MainMenu");
     }
 
     public void Reset()
@@ -300,68 +371,5 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void EndGame(eGameMessage message)
-    {
-        LockAllButtons();
-        // TODO lock side buttons
-        _timer?.TurnOff();
-        _screen?.ShowMessage(message, CurrentPlayer);
-    }
-
-    private void ActivatePcTurn()
-    {
-        // TODO lock all buttons
-        LockGridButtons();
-
-        if (m_playPCTurnRoutine != null)
-        {
-            StopCoroutine(m_playPCTurnRoutine);
-        }
-        m_playPCTurnRoutine = StartCoroutine(WaitAndPerformPCTurn());
-    }
-
-    private IEnumerator WaitAndPerformPCTurn()
-    {
-        yield return new WaitForSeconds(1);
-        ComputerPlayer pcPlayer = CurrentPlayer as ComputerPlayer;
-        if (pcPlayer != null)
-        {
-            int emptyIndex = pcPlayer.NextMoveIndex(m_grid);
-            OnClickGridButton(emptyIndex);
-        }
-
-        // TODO release all buttons
-        UnlockAllButtons();
-    }
-
-    public void MainMenu()
-    {
-        SceneManager.LoadScene("MainMenu");
-    }
-
-    private void LockAllButtons()
-    {
-        _sideMenu?.DisableButtons();
-
-        LockGridButtons();
-    }
-
-    private void LockGridButtons()
-    {
-        for (int i = 0; i < _buttons?.Length; i++)
-        {
-            _buttons[i]?.LockButton();
-        }
-    }
-
-    private void UnlockAllButtons()
-    {
-        // _sideMenu?.EnableButtons();
-
-        if (areAllPlayersPC) return;
-        for (int i = 0; i < _buttons?.Length; i++)
-        {
-            _buttons[i]?.UnlockButton();
-        }
-    }
+    #endregion
 }
