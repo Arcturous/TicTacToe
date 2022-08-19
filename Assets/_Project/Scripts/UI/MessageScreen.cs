@@ -24,13 +24,13 @@ public class MessageScreen : MonoBehaviour
         switch (message)
         {
             case eGameMessage.Win:
-                messageToShow = $"{player.UserName} Wins!";
+                messageToShow = Texts.PLAYER_WIN.Replace("{0}", player.UserName);
                 break;
             case eGameMessage.Lose: // Not currently in use, but could be for real multiplayer
-                messageToShow = "Better luck next time";
+                messageToShow = Texts.BETTER_LUCK;
                 break;
             case eGameMessage.Draw:
-                messageToShow = "It's a draw!";
+                messageToShow = Texts.DRAW;
                 break;
         }
 

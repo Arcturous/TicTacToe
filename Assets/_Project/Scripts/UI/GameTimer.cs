@@ -53,10 +53,10 @@ public class GameTimer : MonoBehaviour
 
     private void UpdateText()
     {
-        _TimerText.text = $"Time Left: {TurnTimeLeft}";
+        _TimerText.text = Texts.TIME_LEFT.Replace("{0}", $"{TurnTimeLeft}");
         if (TurnTimeLeft <= 0)
         {
-            _TimerText.text = "Time's Up!";
+            _TimerText.text = Texts.TIME_UP;
         }
     }
 }
