@@ -48,20 +48,18 @@ public class GameManager : MonoBehaviour
         get { return m_players.TrueForAll((p) => p.UserName.Contains("Computer")); }
     }
 
-    private void Start()
+    private void Awake()
     {
-        _backgroundImage.sprite = Sprite.Create(_settings.textureBG, new Rect(0, 0, _settings.textureBG.width, _settings.textureBG.height), new Vector2(0, 0));
-
-        m_grid = new TicTacToeGrid(_gridDimension);
         // setup the onclick action for all buttons in the grid
-        for (int i = 0; i < _buttons.Length; i++)
-        {
-            _buttons[i].SetOnClick(OnClickGridButton, i);
-        }
+        if (_buttons != null)
+            for (int i = 0; i < _buttons.Length; i++)
+            {
+                _buttons[i]?.SetOnClick(OnClickGridButton, i);
+            }
 
         // listen to timer end event, and end the game with the other player being the winner
         // TODO the "num" param is useless, but my custom events require a param, need to make it optional in future
-        _timer.eOnTimerEnd.On((num) =>
+        _timer?.eOnTimerEnd.On((num) =>
         {
             turn++;
             if (isCurrentPlayerPC && !areAllPlayersPC)
@@ -73,6 +71,11 @@ public class GameManager : MonoBehaviour
         });
 
         SetupGameBySettings();
+
+        m_grid = new TicTacToeGrid(_gridDimension);
+
+        m_logger.Log("calling reset from start");
+
         Reset();
     }
 
@@ -85,11 +88,14 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        if (_backgroundImage)
+            _backgroundImage.sprite = Sprite.Create(_settings.textureBG, new Rect(0, 0, _settings.textureBG.width, _settings.textureBG.height), new Vector2(0, 0));
+
         _gridDimension = _settings.gridDimension;
         if (_gridDimension < 3)
         {
             LockAllButtons();
-            _screen.ShowError("Grid dimension too low - Minimum 3");
+            _screen?.ShowError("Grid dimension too low - Minimum 3");
         }
 
         switch (_settings.mode)
@@ -116,17 +122,22 @@ public class GameManager : MonoBehaviour
 
     public void OnClickHint()
     {
+        if (_buttons == null || _buttons.Length == 0) return;
+
         int emptyIndex = m_moveLogic.CalculateBestMove(m_grid.Grid, CurrentPlayer.PlayerSymbol);
+
+        if (_buttons[emptyIndex] == null) return;
+
         Vector2 buttonPos = _buttons[emptyIndex].transform.position;
-        _hint.Show(new Vector2(buttonPos.x, buttonPos.y + 0.5f));
+        _hint?.Show(new Vector2(buttonPos.x, buttonPos.y + 0.5f));
     }
 
     public void OnClickGridButton(int buttonIndex)
     {
-        SetButtonToPlayer(buttonIndex);
+        SetToPlayerSymbol(buttonIndex);
 
         m_undoStack.Push(buttonIndex);
-        _hint.Hide();
+        _hint?.Hide();
 
         if (CheckWin())
         {
@@ -141,14 +152,14 @@ public class GameManager : MonoBehaviour
 
         turn++;
 
-        if (turn >= _buttons.Length)
+        if (turn >= _buttons?.Length)
         {
             EndGame(eGameMessage.Draw);
             return;
         }
 
-        _timer.Reset();
-        _timer.TurnOn();
+        _timer?.Reset();
+        _timer?.TurnOn();
 
         if (isCurrentPlayerPC)
         {
@@ -168,13 +179,14 @@ public class GameManager : MonoBehaviour
         m_players[1].PlayerSymbol = 1 - randomPlayerSymbol;
     }
 
-    private void SetButtonToPlayer(int buttonIndex)
+    private void SetToPlayerSymbol(int buttonIndex)
     {
         m_logger.Log("setting " + buttonIndex + " to symbol " + CurrentPlayer.PlayerSymbol);
 
         m_grid.MarkGrid(buttonIndex, CurrentPlayer.PlayerSymbol);
 
-        _buttons[buttonIndex]?.SetTexture(CurrentPlayer.PlayerSymbol == ePlayerSymbol.X ? _settings.textureX : _settings.textureO);
+        if (_settings)
+            _buttons[buttonIndex]?.SetTexture(CurrentPlayer.PlayerSymbol == ePlayerSymbol.X ? _settings.textureX : _settings.textureO);
     }
 
     private bool CheckWin()
@@ -185,6 +197,16 @@ public class GameManager : MonoBehaviour
         m_logger.Log($"Reached Enough turns to start checking win. GridDimension - {_gridDimension}, Turn - {turn}", "CheckWin");
 
         return m_grid.IsWin(CurrentPlayer.PlayerSymbol);
+    }
+
+    public TicTacToeGrid Grid
+    {
+        get { return m_grid; }
+    }
+
+    public Stack<int> UndoStack
+    {
+        get { return m_undoStack; }
     }
 
     public int TurnToStartCheckingWin
@@ -219,11 +241,11 @@ public class GameManager : MonoBehaviour
         m_undoStack.Clear();
 
         m_grid.Reset();
-        _hint.Hide();
+        _hint?.Hide();
 
-        for (int i = 0; i < _buttons.Length; i++)
+        for (int i = 0; i < _buttons?.Length; i++)
         {
-            _buttons[i].Reset();
+            _buttons[i]?.Reset();
         }
 
         UnlockAllButtons();
@@ -231,8 +253,8 @@ public class GameManager : MonoBehaviour
         if (areAllPlayersPC)
             LockGridButtons();
 
-        _timer.Reset();
-        _timer.TurnOn();
+        _timer?.Reset();
+        _timer?.TurnOn();
 
         if (isCurrentPlayerPC)
         {
@@ -263,7 +285,7 @@ public class GameManager : MonoBehaviour
             int gridIndex = m_undoStack.Pop();
 
             // cancel last action
-            _buttons[gridIndex].Reset();
+            _buttons[gridIndex]?.Reset();
             m_grid.RemoveMark(gridIndex);
             turn--;
         }
@@ -273,8 +295,8 @@ public class GameManager : MonoBehaviour
     {
         LockAllButtons();
         // TODO lock side buttons
-        _timer.TurnOff();
-        _screen.ShowMessage(message, CurrentPlayer);
+        _timer?.TurnOff();
+        _screen?.ShowMessage(message, CurrentPlayer);
     }
 
     private void ActivatePcTurn()
@@ -317,9 +339,9 @@ public class GameManager : MonoBehaviour
 
     private void LockGridButtons()
     {
-        for (int i = 0; i < _buttons.Length; i++)
+        for (int i = 0; i < _buttons?.Length; i++)
         {
-            _buttons[i].LockButton();
+            _buttons[i]?.LockButton();
         }
     }
 
@@ -328,9 +350,9 @@ public class GameManager : MonoBehaviour
         _sideMenu?.EnableButtons();
 
         if (areAllPlayersPC) return;
-        for (int i = 0; i < _buttons.Length; i++)
+        for (int i = 0; i < _buttons?.Length; i++)
         {
-            _buttons[i].UnlockButton();
+            _buttons[i]?.UnlockButton();
         }
     }
 }
