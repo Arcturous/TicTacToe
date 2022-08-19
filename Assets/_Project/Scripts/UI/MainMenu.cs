@@ -116,38 +116,17 @@ public class MainMenu : MonoBehaviour
             yield break;
         }
 
-        // var assetNames = localAssetBundle.GetAllAssetNames();
-
-        // List<Texture2D> textures = new List<Texture2D>();
-
-        // foreach (string name in assetNames)
-        // {
-        //     m_logger.Log($"Loading asset {name} from asset bundle");
-        //     AssetBundleRequest assetRequest = localAssetBundle.LoadAssetAsync<Texture2D>(name);
-        //     yield return assetRequest;
-
-        //     if (assetRequest == null)
-        //     {
-        //         OnAssetBundleLoadError();
-        //         yield break;
-        //     }
-
-        //     Texture2D texture = assetRequest.asset as Texture2D;
-
-        //     if (texture != null)
-        //         textures.Add(texture);
-        // }
-
-        var assetRequest = localAssetBundle.LoadAllAssetsAsync();
+        AssetBundleRequest assetRequest = localAssetBundle.LoadAllAssetsAsync<Texture2D>();
         yield return assetRequest;
 
-        if (assetRequest == null || assetRequest.allAssets == null)
+        if (assetRequest == null)
         {
             OnAssetBundleLoadError();
             yield break;
         }
 
-        Texture2D[] textures = assetRequest.allAssets as Texture2D[];
+        object[] textures = assetRequest.allAssets;
+        // m_logger.Log(string.Join(", ", textures as object[]));
 
         localAssetBundle.Unload(false);
 
@@ -156,20 +135,18 @@ public class MainMenu : MonoBehaviour
         HideLoadingSpinner();
     }
 
-    private void AssignTexturesToSettings(Texture2D[] textures)
+    private void AssignTexturesToSettings(object[] textures)
     {
-        // BUG
-        // The AssetBundle sorts them by alphabetical order, problem is I cant know the asset names beforehand.
+        if (textures == null)
+        {
+            OnAssetBundleLoadError();
+            return;
+        }
 
-        // I could force the asset to have x/o/bg in its name and use "find", but would be pretty bad to make external bundles meet this requirement
-        // I could copy the assets to a new folder with new names - and only then bundle them, but would be wasteful for memory
-        // I could split each asset to its own bundle with some kind of affix name, but it defeats the whole purpose of using bundles imo
-
-        // TODO find some way to make bundle keep the original non-alphabetic order
-
-        _settings.textureBG = textures[0] ?? _settings.textureBG;
-        _settings.textureO = textures[1] ?? _settings.textureO;
-        _settings.textureX = textures[2] ?? _settings.textureX;
+        // The assets will always be ordered like this - I rename the texture files, and then rename them back to the original name - this causes them to always be in the same order as the AssetBundle orders them alphabetically
+        _settings.textureBG = textures[0] as Texture2D ?? _settings?.textureBG;
+        _settings.textureO = textures[1] as Texture2D ?? _settings?.textureO;
+        _settings.textureX = textures[2] as Texture2D ?? _settings?.textureX;
 
         _backgroundImage.sprite = Sprite.Create(_settings.textureBG, new Rect(0, 0, _settings.textureBG.width, _settings.textureBG.height), new Vector2(0, 0));
     }

@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 401111084
+CRC: 1769593208
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 8ccc2cde5b1df18b54524ac45efc0fa5
+    Hash: 7beec345726f3c15ce285adb8b06249c
   TypeTreeHash:
     serializedVersion: 2
     Hash: 4df8c69f2c8a6ad9e3cbf82bb83e4dc3
@@ -15,7 +15,7 @@ ClassTypes:
   Script: {instanceID: 0}
 SerializeReferenceClassIdentifiers: []
 Assets:
-- Assets/_Project/Textures/Reskins/Melkor.jpg
-- Assets/_Project/Textures/Moon Active/EmptyBG.png
-- Assets/_Project/Textures/Reskins/60f5681803643.jpg
+- Assets/_Project/Textures/Reskins/O.jpg
+- Assets/_Project/Textures/Reskins/BG.png
+- Assets/_Project/Textures/Reskins/X.jpg
 Dependencies: []

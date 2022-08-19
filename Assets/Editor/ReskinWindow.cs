@@ -72,17 +72,35 @@ public class ReskinWindow : EditorWindow
             Directory.CreateDirectory(assetPath);
         }
 
+        string xPath = AssetDatabase.GetAssetPath(m_xImage);
+        string oPath = AssetDatabase.GetAssetPath(m_oImage);
+        string bgPath = AssetDatabase.GetAssetPath(m_backgroundImage);
+
+        string fileNameX = Path.GetFileNameWithoutExtension(xPath);
+        string fileNameO = Path.GetFileNameWithoutExtension(oPath);
+        string fileNameBG = Path.GetFileNameWithoutExtension(bgPath);
+
+        // change names of bundled assets so they will be ordered properly in the bundle
+        AssetDatabase.RenameAsset(xPath, "X");
+        AssetDatabase.RenameAsset(oPath, "O");
+        AssetDatabase.RenameAsset(bgPath, "BG");
+
         AssetBundleBuild build = new AssetBundleBuild();
 
         build.assetBundleName = m_bundleName;
         build.assetNames = new string[]{
-            AssetDatabase.GetAssetPath(m_xImage),
-            AssetDatabase.GetAssetPath(m_oImage),
-            AssetDatabase.GetAssetPath(m_backgroundImage)
+            xPath.Replace(fileNameX, "X"),
+            oPath.Replace(fileNameO, "O"),
+            bgPath.Replace(fileNameBG, "BG")
         };
 
-        AssetBundleManifest manifest = BuildPipeline.BuildAssetBundles(Application.streamingAssetsPath + "/AssetBundles", new AssetBundleBuild[] { build }, BuildAssetBundleOptions.None, EditorUserBuildSettings.activeBuildTarget);
+        BuildPipeline.BuildAssetBundles(Application.streamingAssetsPath + "/AssetBundles", new AssetBundleBuild[] { build }, BuildAssetBundleOptions.None, EditorUserBuildSettings.activeBuildTarget);
 
         AssetDatabase.Refresh();
+
+        // rename the assets back to original names
+        AssetDatabase.RenameAsset(xPath.Replace(fileNameX, "X"), fileNameX);
+        AssetDatabase.RenameAsset(oPath.Replace(fileNameO, "O"), fileNameO);
+        AssetDatabase.RenameAsset(bgPath.Replace(fileNameBG, "BG"), fileNameBG);
     }
 }
