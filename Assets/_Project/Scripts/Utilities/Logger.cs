@@ -33,7 +33,7 @@ public class Logger
             output += $"[{sourceFunc}]";
         }
 
-        output += " " + message;
+        output += message;
 
         return output;
     }

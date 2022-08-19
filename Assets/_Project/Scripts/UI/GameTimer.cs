@@ -53,8 +53,7 @@ public class GameTimer : MonoBehaviour
 
     private void UpdateText()
     {
-        // TODO get text from xml/json for translation by langCode
-        _TimerText.text = "Time Left: " + TurnTimeLeft;
+        _TimerText.text = $"Time Left: {TurnTimeLeft}";
         if (TurnTimeLeft <= 0)
         {
             _TimerText.text = "Time's Up!";

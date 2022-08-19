@@ -21,7 +21,6 @@ public class MessageScreen : MonoBehaviour
 
         string messageToShow = "";
 
-        // TODO get the strings from xml/json for translations by langCode
         switch (message)
         {
             case eGameMessage.Win:
@@ -37,7 +36,7 @@ public class MessageScreen : MonoBehaviour
 
         _messageText.text = messageToShow;
 
-        m_Logger.Log("Showing message: " + messageToShow);
+        m_Logger.Log($"Showing message: {messageToShow}");
     }
 
     public void ShowError(string errorMessage)

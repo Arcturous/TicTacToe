@@ -42,8 +42,8 @@ public class ReskinWindow : EditorWindow
             return false;
         }
 
-        string bundlePath = Path.Combine(Application.streamingAssetsPath + "/AssetBundles", "AssetBundle_" + m_bundleName);
-        if (Directory.Exists(bundlePath)) // should add a confirm option in the future, for now just allowing overwrite
+        string bundlePath = Path.Combine(Path.Combine(Application.streamingAssetsPath, "AssetBundles"), m_bundleName);
+        if (File.Exists(bundlePath)) // should add a confirm option in the future, for now just allowing overwrite
         {
             this.ShowNotification(new GUIContent("A bundle with this name already exists, overwriting"));
             return true;

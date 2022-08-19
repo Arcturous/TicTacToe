@@ -52,6 +52,15 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
+        SetupGameBySettings();
+
+        m_grid = new TicTacToeGrid(_gridDimension);
+
+        Reset();
+    }
+
+    private void Start()
+    {
         // setup the onclick action for all buttons in the grid
         if (_buttons != null)
             for (int i = 0; i < _buttons.Length; i++)
@@ -71,12 +80,6 @@ public class GameManager : MonoBehaviour
             }
             EndGame(eGameMessage.Win);
         });
-
-        SetupGameBySettings();
-
-        m_grid = new TicTacToeGrid(_gridDimension);
-
-        Reset();
     }
 
     private void SetupGameBySettings()
@@ -184,7 +187,7 @@ public class GameManager : MonoBehaviour
 
     private void SetToPlayerSymbol(int buttonIndex)
     {
-        m_logger.Log("setting " + buttonIndex + " to symbol " + CurrentPlayer.PlayerSymbol);
+        m_logger.Log($"setting {buttonIndex} to symbol {CurrentPlayer.PlayerSymbol}");
 
         m_grid.MarkGrid(buttonIndex, CurrentPlayer.PlayerSymbol);
 
