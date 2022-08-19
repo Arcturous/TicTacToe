@@ -5,6 +5,24 @@ using UnityEngine;
 // This test is on play mode because we are using a monobehaviour class (GameManager), and it needs to have its "Awake" function called
 public class UndoTest
 {
+    private void CompareGrids(int[] grid1, int[] grid2)
+    {
+        for (int i = 0; i < grid1.Length; i++)
+        {
+            Assert.AreEqual(grid1[i], grid2[i]);
+        }
+    }
+
+    private void CompareStackToClicks(Stack<int> stack, int[] clicks)
+    {
+        int stackSize = stack.Count;
+        for (int i = 0; i < stackSize; i++)
+        {
+            int undoIndex = stack.Pop();
+            Assert.AreEqual(undoIndex, clicks[i]);
+        }
+    }
+
     [Test]
     public void UndoTest4Items()     // 4 items
     {
@@ -29,18 +47,9 @@ public class UndoTest
         };
 
         Stack<int> testStack = new Stack<int>(manager.UndoStack);
-        int stackSize = testStack.Count;
+        CompareStackToClicks(testStack, clickedIndices);
 
-        for (int i = 0; i < stackSize; i++)
-        {
-            int undoIndex = testStack.Pop();
-            Assert.AreEqual(undoIndex, clickedIndices[i]);
-        }
-
-        for (int i = 0; i < testGrid.Length; i++)
-        {
-            Assert.AreEqual(testGrid[i], grid.Grid[i]);
-        }
+        CompareGrids(testGrid, grid.Grid);
 
         // Call Undo
         manager.Undo();
@@ -51,19 +60,10 @@ public class UndoTest
             -1,-1,-1
         };
 
-        for (int i = 0; i < testGridAfterUndo.Length; i++)
-        {
-            Assert.AreEqual(testGridAfterUndo[i], grid.Grid[i]);
-        }
+        CompareGrids(testGridAfterUndo, grid.Grid);
 
         testStack = new Stack<int>(manager.UndoStack);
-        stackSize = testStack.Count;
-
-        for (int i = 0; i < stackSize; i++)
-        {
-            int undoIndex = testStack.Pop();
-            Assert.AreEqual(undoIndex, clickedIndicesAfterUndo[i]);
-        }
+        CompareStackToClicks(testStack, clickedIndicesAfterUndo);
     }
 
     [Test]
@@ -89,18 +89,9 @@ public class UndoTest
         };
 
         Stack<int> testStack = new Stack<int>(manager.UndoStack);
-        int stackSize = testStack.Count;
+        CompareStackToClicks(testStack, clickedIndices);
 
-        for (int i = 0; i < stackSize; i++)
-        {
-            int undoIndex = testStack.Pop();
-            Assert.AreEqual(undoIndex, clickedIndices[i]);
-        }
-
-        for (int i = 0; i < testGrid.Length; i++)
-        {
-            Assert.AreEqual(testGrid[i], grid.Grid[i]);
-        }
+        CompareGrids(testGrid, grid.Grid);
 
         // Call Undo
         manager.Undo();
@@ -111,19 +102,47 @@ public class UndoTest
             -1,-1,-1
         };
 
-        for (int i = 0; i < testGridAfterUndo.Length; i++)
-        {
-            Assert.AreEqual(testGridAfterUndo[i], grid.Grid[i]);
-        }
+        CompareGrids(testGridAfterUndo, grid.Grid);
 
         testStack = new Stack<int>(manager.UndoStack);
-        stackSize = testStack.Count;
+        CompareStackToClicks(testStack, clickedIndicesAfterUndo);
+    }
 
-        for (int i = 0; i < stackSize; i++)
-        {
-            int undoIndex = testStack.Pop();
-            Assert.AreEqual(undoIndex, clickedIndicesAfterUndo[i]);
-        }
+    [Test]
+    public void UndoTest2Items()     // 2 items
+    {
+        GameObject obj = new GameObject();
+        GameManager manager = obj.AddComponent<GameManager>();
+        TicTacToeGrid grid = manager.Grid;
+
+        int[] clickedIndices = new int[] { 1, 6 };
+
+        manager.OnClickGridButton(clickedIndices[0]);   // X
+        manager.OnClickGridButton(clickedIndices[1]);   // O
+
+        int[] testGrid = {
+            -1,0,-1,
+            -1,-1,-1,
+            1,-1,-1
+        };
+
+        Stack<int> testStack = new Stack<int>(manager.UndoStack);
+        CompareStackToClicks(testStack, clickedIndices);
+
+        CompareGrids(testGrid, grid.Grid);
+
+        // Call Undo
+        manager.Undo();
+
+        int[] testGridAfterUndo = {
+            -1,-1,-1,
+            -1,-1,-1,
+            -1,-1,-1
+        };
+
+        CompareGrids(testGridAfterUndo, grid.Grid);
+
+        Assert.AreEqual(manager.UndoStack.Count, 0);
     }
 
     [Test]
@@ -144,18 +163,9 @@ public class UndoTest
         };
 
         Stack<int> testStack = new Stack<int>(manager.UndoStack);
-        int stackSize = testStack.Count;
+        CompareStackToClicks(testStack, clickedIndices);
 
-        for (int i = 0; i < stackSize; i++)
-        {
-            int undoIndex = testStack.Pop();
-            Assert.AreEqual(undoIndex, clickedIndices[i]);
-        }
-
-        for (int i = 0; i < testGrid.Length; i++)
-        {
-            Assert.AreEqual(testGrid[i], grid.Grid[i]);
-        }
+        CompareGrids(testGrid, grid.Grid);
 
         // Call Undo
         manager.Undo();
@@ -166,10 +176,7 @@ public class UndoTest
             -1,-1,-1
         };
 
-        for (int i = 0; i < testGridAfterUndo.Length; i++)
-        {
-            Assert.AreEqual(testGridAfterUndo[i], grid.Grid[i]);
-        }
+        CompareGrids(testGridAfterUndo, grid.Grid);
 
         Assert.AreEqual(manager.UndoStack.Count, 0);
     }
@@ -189,24 +196,18 @@ public class UndoTest
 
         Assert.AreEqual(manager.UndoStack.Count, 0);
 
-        for (int i = 0; i < testGrid.Length; i++)
-        {
-            Assert.AreEqual(testGrid[i], grid.Grid[i]);
-        }
+        CompareGrids(testGrid, grid.Grid);
 
         // Call Undo
         manager.Undo();
 
         Assert.AreEqual(manager.UndoStack.Count, 0);
 
-        for (int i = 0; i < testGrid.Length; i++)
-        {
-            Assert.AreEqual(testGrid[i], grid.Grid[i]);
-        }
+        CompareGrids(testGrid, grid.Grid);
     }
 
     [Test]
-    public void UndoTestNoPcPlayers()     // no items
+    public void UndoTestNoPcPlayers()     // no pc players
     {
         GameObject obj = new GameObject();
         GameManager manager = obj.AddComponent<GameManager>();
@@ -231,35 +232,17 @@ public class UndoTest
         };
 
         Stack<int> testStack = new Stack<int>(manager.UndoStack);
-        int stackSize = testStack.Count;
+        CompareStackToClicks(testStack, clickedIndices);
 
-        for (int i = 0; i < stackSize; i++)
-        {
-            int undoIndex = testStack.Pop();
-            Assert.AreEqual(undoIndex, clickedIndices[i]);
-        }
-
-        for (int i = 0; i < testGrid.Length; i++)
-        {
-            Assert.AreEqual(testGrid[i], grid.Grid[i]);
-        }
+        CompareGrids(testGrid, grid.Grid);
 
         // Call Undo - it should return before doing anything as there are no pc players
         manager.Undo();
 
-        for (int i = 0; i < testGrid.Length; i++)   // should remain the same as before the "Undo"
-        {
-            Assert.AreEqual(testGrid[i], grid.Grid[i]);
-        }
-
         testStack = new Stack<int>(manager.UndoStack);
-        stackSize = testStack.Count;
+        CompareStackToClicks(testStack, clickedIndices);    // should remain the same as before the "Undo"
 
-        for (int i = 0; i < stackSize; i++)
-        {
-            int undoIndex = testStack.Pop();
-            Assert.AreEqual(undoIndex, clickedIndices[i]);    // should remain the same as before the "Undo"
-        }
+        CompareGrids(testGrid, grid.Grid);    // should remain the same as before the "Undo"
     }
 }
 
