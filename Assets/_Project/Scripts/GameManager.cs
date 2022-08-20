@@ -7,7 +7,6 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] private GridButton[] _buttons = new GridButton[9];     // TODO init buttons dynamically in "TicTacToeBoard" class by _gridDimension, that way can support different sized grid dimensions(4x4,5x5 etc')
     [SerializeField] private Text _playerText;
     [SerializeField] private GameTimer _timer;
     [SerializeField] private MessageScreen _screen;
@@ -15,8 +14,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameSettings _settings;
     [SerializeField] private SideMenu _sideMenu;
     [SerializeField] private Image _backgroundImage;
+    [SerializeField] private TicTacToeBoard _board;
 
-    private int _gridDimension = 3;
     private Stack<int> m_undoStack = new Stack<int>();
     private Logger m_logger = new Logger("GameManager");
     private int m_turn = 0;
@@ -79,13 +78,13 @@ public class GameManager : MonoBehaviour
         // 6+1 = 7  --->  X O X O X O X O X O X (turn == 10)
         // 20+1 = 21  --->  X O X O X O X O X O X O X O X O X O X O X O X O X O X O X O X O X O X O X O X (turn == 38)
 
-        // _gridDimension == 2 -> turn < 2
-        // _gridDimension == 3 -> turn < 4
-        // _gridDimension == 4 -> turn < 6
-        // _gridDimension == 5 -> turn < 8
-        // _gridDimension == 6 -> turn < 10
-        // _gridDimension == 20 -> turn < 38
-        get { return _gridDimension + 1 + (_gridDimension - 3); }
+        // gridDimension == 2 -> turn < 2
+        // gridDimension == 3 -> turn < 4
+        // gridDimension == 4 -> turn < 6
+        // gridDimension == 5 -> turn < 8
+        // gridDimension == 6 -> turn < 10
+        // gridDimension == 20 -> turn < 38
+        get { return _board.GridDimension + 1 + (_board.GridDimension - 3); }
     }
     #endregion
 
@@ -94,7 +93,7 @@ public class GameManager : MonoBehaviour
     {
         SetupGameBySettings();
 
-        m_grid = new TicTacToeGrid(_gridDimension);
+        m_grid = new TicTacToeGrid(_board.GridDimension);
 
         Reset();
     }
@@ -102,11 +101,10 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         // setup the onclick action for all buttons in the grid
-        if (_buttons != null)
-            for (int i = 0; i < _buttons.Length; i++)
-            {
-                _buttons[i]?.SetOnClick(OnClickGridButton, i);
-            }
+        for (int i = 0; i < _board?.Buttons?.Count; i++)
+        {
+            _board?.Buttons[i]?.SetOnClick(OnClickGridButton, i);
+        }
 
         // listen to timer end event, and end the game with the other player being the winner
         // TODO the "num" param is useless, but my custom events require a param, need to make it optional in future
@@ -133,13 +131,6 @@ public class GameManager : MonoBehaviour
 
         if (_backgroundImage)
             _backgroundImage.sprite = Sprite.Create(_settings.textureBG, new Rect(0, 0, _settings.textureBG.width, _settings.textureBG.height), new Vector2(0, 0));
-
-        _gridDimension = _settings.gridDimension;
-        if (_gridDimension < 3)
-        {
-            LockAllButtons();
-            _screen?.ShowError("Grid dimension too low - Minimum 3");
-        }
 
         m_areAllPlayersPC = false;
 
@@ -180,7 +171,7 @@ public class GameManager : MonoBehaviour
         m_grid.MarkGrid(buttonIndex, CurrentPlayer.PlayerSymbol);
 
         if (_settings)
-            _buttons[buttonIndex]?.SetTexture(CurrentPlayer.PlayerSymbol == ePlayerSymbol.X ? _settings.textureX : _settings.textureO);
+            _board.Buttons[buttonIndex]?.SetTexture(CurrentPlayer.PlayerSymbol == ePlayerSymbol.X ? _settings.textureX : _settings.textureO);
     }
 
     private bool CheckWin()
@@ -188,7 +179,7 @@ public class GameManager : MonoBehaviour
         // cannot win before having a player with at least {_gridDimension} marks on the grid
         if (turn < TurnToStartCheckingWin) return false;
 
-        m_logger.Log($"Reached Enough turns to start checking win. GridDimension - {_gridDimension}, Turn - {turn}", "CheckWin");
+        m_logger.Log($"Reached Enough turns to start checking win. GridDimension - {_board.GridDimension}, Turn - {turn}", "CheckWin");
 
         return m_grid.IsWin(CurrentPlayer.PlayerSymbol);
     }
@@ -236,9 +227,9 @@ public class GameManager : MonoBehaviour
 
     private void LockGridButtons()
     {
-        for (int i = 0; i < _buttons?.Length; i++)
+        for (int i = 0; i < _board.Buttons?.Count; i++)
         {
-            _buttons[i]?.LockButton();
+            _board.Buttons[i]?.LockButton();
         }
     }
 
@@ -247,9 +238,9 @@ public class GameManager : MonoBehaviour
         // _sideMenu?.EnableButtons();
 
         if (areAllPlayersPC) return;
-        for (int i = 0; i < _buttons?.Length; i++)
+        for (int i = 0; i < _board.Buttons?.Count; i++)
         {
-            _buttons[i]?.UnlockButton();
+            _board.Buttons[i]?.UnlockButton();
         }
     }
     #endregion
@@ -257,13 +248,13 @@ public class GameManager : MonoBehaviour
     #region public functions
     public void OnClickHint()
     {
-        if (_buttons == null || _buttons.Length == 0) return;
+        if (_board.Buttons == null || _board.Buttons.Count == 0) return;
 
         int emptyIndex = m_logic.CalculateBestMove(m_grid.Grid, CurrentPlayer.PlayerSymbol);
 
-        if (_buttons[emptyIndex] == null) return;
+        if (_board.Buttons[emptyIndex] == null) return;
 
-        Vector2 buttonPos = _buttons[emptyIndex].transform.position;
+        Vector2 buttonPos = _board.Buttons[emptyIndex].transform.position;
         _hint?.Show(new Vector2(buttonPos.x, buttonPos.y + 0.5f));
     }
 
@@ -287,7 +278,7 @@ public class GameManager : MonoBehaviour
 
         turn++;
 
-        if (turn >= _buttons?.Length)
+        if (turn >= _board.Buttons?.Count)
         {
             EndGame(eGameMessage.Draw);
             return;
@@ -323,9 +314,9 @@ public class GameManager : MonoBehaviour
         m_grid.Reset();
         _hint?.Hide();
 
-        for (int i = 0; i < _buttons?.Length; i++)
+        for (int i = 0; i < _board.Buttons?.Count; i++)
         {
-            _buttons[i]?.Reset();
+            _board.Buttons[i]?.Reset();
         }
 
         UnlockAllButtons();
@@ -365,7 +356,7 @@ public class GameManager : MonoBehaviour
             int gridIndex = m_undoStack.Pop();
 
             // cancel last action
-            _buttons[gridIndex]?.Reset();
+            _board.Buttons[gridIndex]?.Reset();
             m_grid.RemoveMark(gridIndex);
             turn--;
         }

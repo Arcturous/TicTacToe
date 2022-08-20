@@ -16,6 +16,6 @@ MonoBehaviour:
   difficulty: 0
   gridDimension: 3
   turnTime: 5
-  textureX: {fileID: 0}
-  textureO: {fileID: 0}
-  textureBG: {fileID: 0}
+  textureX: {fileID: 2800000, guid: 2a20d2e58728de7499062dcbb18efe20, type: 3}
+  textureO: {fileID: 2800000, guid: 0e5f376e33d2109418e7f9bcfea14c4a, type: 3}
+  textureBG: {fileID: 2800000, guid: 13423b02904190c428ff0e7e34e284f5, type: 3}

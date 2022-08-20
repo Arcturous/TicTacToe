@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 
+[RequireComponent(typeof(Image))]
+[RequireComponent(typeof(Button))]
 public class GridButton : MonoBehaviour
 {
     private Button m_button;
@@ -12,6 +14,9 @@ public class GridButton : MonoBehaviour
     {
         m_buttonImage = GetComponent<Image>();
         m_button = GetComponent<Button>();
+
+        m_button.transition = Selectable.Transition.None;
+
         Reset();
     }
 

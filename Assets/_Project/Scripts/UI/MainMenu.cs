@@ -17,6 +17,8 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private List<GameObject> _menuItems;
     [SerializeField] private Image _loadingSpinner;
     [SerializeField] private InputField _bundleNameField;
+    [SerializeField] private InputField _gridSizeField;
+    [SerializeField] private Text _gridSizeText;
 
     private Vector2 m_originalBtnPosition;
     private Logger m_logger = new Logger("MainMenu");
@@ -39,6 +41,14 @@ public class MainMenu : MonoBehaviour
         _settings.difficulty = eDifficulty.easy;
 
         _backgroundImage.sprite = Sprite.Create(_settings.textureBG, new Rect(0, 0, _settings.textureBG.width, _settings.textureBG.height), new Vector2(0, 0));
+
+        _gridSizeField.onValueChanged.AddListener((newVal) =>
+        {
+            if (CheckAndSetGridDimension())
+            {
+                _gridSizeText.color = Color.black;
+            }
+        });
     }
 
     void Update()
@@ -84,6 +94,13 @@ public class MainMenu : MonoBehaviour
 
     public void StartGame()
     {
+        if (!CheckAndSetGridDimension())
+        {
+            _gridSizeText.color = Color.red;
+            if (!_gridSizeField.text.Contains("(invalid, need number 3-10)"))
+                _gridSizeField.text = _gridSizeField.text + "(invalid, need number 3-10)";
+            return;
+        }
         SceneManager.LoadScene("GameScene");
     }
 
@@ -94,6 +111,29 @@ public class MainMenu : MonoBehaviour
         HideMenuItems();
 
         StartCoroutine(RequestAssetBundle(_bundleNameField.text));
+    }
+
+    private bool CheckAndSetGridDimension()
+    {
+        if (!_gridSizeField && _gridSizeField.text == null && _gridSizeField.text == "")
+        {
+            return false;
+        }
+
+        int gridDimension;
+        if (int.TryParse(_gridSizeField.text, out gridDimension))
+        {
+            if (gridDimension > 10 || gridDimension < 3)
+                return false;
+
+            _settings.gridDimension = gridDimension;
+        }
+        else
+        {
+            return false;
+        }
+
+        return true;
     }
 
     private IEnumerator RequestAssetBundle(string bundleName)
